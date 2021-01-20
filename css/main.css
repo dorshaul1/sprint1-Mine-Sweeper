@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap');
+
+body {
+    font-family: 'Ubuntu', sans-serif;
+    text-align: center;
+}
+
+.title {
+    font-size: 35px;
+    margin-bottom: 10px;
+}
+
+table {
+    width: 550px;
+    height: 550px;
+    margin: auto;
+    background: rgb(243, 243, 243);
+    border-radius: 20px;
+}
+
+.board td {
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    transition: 0.5s;
+    border-radius: 16px;
+    font-size: 25px;
+}
+
+.board td:hover {
+    /* background-color: lightblue; */
+    background-color: d3e1fd;
+    cursor: pointer;
+    box-shadow: 3px 3px 20px gray;
+}
+
+.mine {
+    background-color: rgb(201, 37, 37);
+    color: rgb(243, 243, 243);
+    font-size: 80%;
+}
+
+.shown {
+    background-color: rgb(230, 228, 228);
+}
+
+button {
+    margin: 10px;
+    background-color: white;
+    /* border: 2px solid lightgray; */
+    border: none;
+    /* border-radius: 20px; */
+    /* height: 30px;
+    width: 70px; */
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 0%;
+    margin-top: 0%;
+}
+
+button:hover {
+    cursor: pointer;
+    background-color: rgb(300, 300, 300);
+    color: red;
+}
