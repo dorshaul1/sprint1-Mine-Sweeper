@@ -256,5 +256,9 @@ function timer() {
 }
 
 function win() {
-
+    var elH1 = document.querySelector('.title')
+    var elRestart = document.querySelector('.restart')
+    elH1.innerText = 'You Win'
+    elRestart.style.display = 'block'
+    clearInterval (gGame.gInterval)
 }
