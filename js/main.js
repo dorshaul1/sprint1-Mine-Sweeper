@@ -1,6 +1,6 @@
 'use strict'
 
-var gBoard = buildBoard(12, 30)
+var gBoard = buildBoard(8, 12)
 
 var gLevel = {
     SIZE: 4,
@@ -23,7 +23,7 @@ function buildBoard(count, mineCount) {
                 minesAroundCount: 0,
                 isShown: false,
                 isMine: false,
-                isMarked: true
+                isMarked: false,
             }
         }
     }
@@ -39,10 +39,10 @@ function renderBoard(board) {
         strHtml += '<tr>'
         for (var j = 0; j < board[0].length; j++) {
             var cell = board[i][j]
-            var shown = (cell.isShown) ? 'class = shown' : null
-            // var mine = (cell.isMine) ? 'class = "mine"' : null
-            var mineX = (cell.isMine) ? 'X' : ''
-            strHtml += `<td data-i="${i}" data-j="${j}" onclick="cellClicked(this)" ${shown}></td>`
+            var mineDefault = (cell.isMine) ? 'class = "mineDefault"' : null
+            var shown = (cell.isShown) ? `class = "shown"` : null
+            strHtml += `<td data-i="${i}" data-j="${j}" 
+            onclick="cellClicked(this,event)"${mineDefault}${shown} class = "default"></td>`
         }
         strHtml += '</tr>'
     }
@@ -53,6 +53,7 @@ function renderBoard(board) {
 
 function initGame() {
     renderBoard(gBoard)
+    gGame.isOn = true
 }
 
 function setMinesNegsCount(board, position) {
@@ -82,23 +83,26 @@ function setMinesNegsCount(board, position) {
     return neighbors
 }
 
-function easy(){
+function easy() {
     gBoard = buildBoard(4, 2)
     renderBoard(gBoard)
 }
 
-function medium(){
+function medium() {
     gBoard = buildBoard(8, 12)
     renderBoard(gBoard)
 }
 
-function hard(){
+function hard() {
     gBoard = buildBoard(12, 30)
     renderBoard(gBoard)
 }
 
 
-function cellClicked(elCell) {
+function cellClicked(elCell, ev) {
+
+    if (!gGame.isOn) return
+
     var posI = elCell.dataset.i
     var posJ = elCell.dataset.j
 
@@ -106,71 +110,104 @@ function cellClicked(elCell) {
         i: +posI,
         j: +posJ
     }
-    if (elCell.isMine) checkGameOver(elCell)
+    var currCell = gBoard[pos.i][pos.j]
+    currCell.isShown = true
+
+    // if (currCell.isShown){
+    //     elCell.classList.add('shown')
+    // }
+
+    if (currCell.isMine) checkGameOver(elCell, pos)
 
     setMinesNegsCount(gBoard, pos)
     expandShown(elCell, pos, gBoard)
+    // cellMarked(ev)
+    if (ev.shiftKey) cellMarked(elCell, pos)
 }
 
 function expandShown(elCell, position, board) {
     var currcell = board[position.i][position.j]
     var neighbors = setMinesNegsCount(board, position)
+    console.log('neighbors:', neighbors)
     currcell.isShown = true
     elCell.classList.add('shown')
 
-    if (currcell.isMine) {
-        checkGameOver(elCell)
+    currcell.isShown = true
+    if (currcell.isMine) checkGameOver()
 
-    } else if (!currcell.minesAroundCount) {
-        currcell.isShown = true
+    // else if (elCell) {
+    //     for (var i = 0; i < neighbors.length; i++) {
+    //         neighbors[i].isShown = true
+            
+    //         // elCell.dataset.i.classList.add('shown')
+    //         // renderBoard(gBoard)
+    //     }
+
+    // } 
+    else if (!currcell.minesAroundCount) {
         for (var i = 0; i < neighbors.length; i++) {
             neighbors[i].isShown = true
             renderBoard(gBoard)
         }
     } else {
-        //update model
-        currcell.isShown = true
-
-        //update DOM
-
-        //change nmbers color
-        if (currcell.minesAroundCount === 1) elCell.style.color = 'blue'
-        else if (currcell.minesAroundCount === 2) elCell.style.color = 'rgb(41, 160, 4)'
-        else if (currcell.minesAroundCount === 3) elCell.style.color = 'red'
-        else if (currcell.minesAroundCount === 4) elCell.style.color = 'purple'
-        else if (currcell.minesAroundCount === 5) elCell.style.color = 'hotpink'
-        else if (currcell.minesAroundCount === 6) elCell.style.color = 'hotpink'
-        elCell.innerText = currcell.minesAroundCount
+        printNumNegs(board,position,elCell)
     }
 }
 
-function checkGameOver(elCell) {
-    console.log('elCell:', elCell)
-    elCell.classList.add('mine')
-    elCell.classList.remove('shown')
+function checkGameOver() {
+    // console.log('elCell:', elCell)
+    var elMines = document.querySelectorAll('.mineDefault')
+    var elH1 = document.querySelector('.title')
+    var elRestart = document.querySelector('.restart')
+    // console.log('elMines:', elMines)
 
-    // for (var i = 0; i < gBoard.length; i++) {
-    //     for (var j = 0; j < gBoard[i].length; j++) {
-    //         var currCell = gBoard[i][j]
+    for (let i = 0; i < elMines.length; i++) {
 
-    // console.log('currCell:', currCell)
-    // if (currCell.isMine) currCell.classList.add('mine')
-    // console.log(gBoard[i][j])
-    // }
-    // }
-    // renderBoard(gBoard)
-    // elMines = document.querySelectorAll(.)
-    // console.log(true)
+        elMines[i].classList.add('mine')
+        elMines[i].classList.remove('shown')
+        elMines[i].innerText = 'X'
+    }
     gGame.isOn = false
-    // elCell.classList.add('mine')
-    elCell.innerText = 'X'
-
-
-    // if (cellClicked(elCell))
-    //     console.log('cellClicked(elCell):', cellClicked(elCell))
+    elH1.innerText = 'Game Over'
+    elRestart.style.display = 'block'
 }
 
-function cellMarked(elCell) {
+function cellMarked(elCell, pos) {
+    elCell.innerText = ''
+    elCell.classList.toggle('marked')
+    elCell.classList.remove('mine')
+    gBoard[pos.i][pos.j].isMarked = true
+}
 
+function restart() {
+    // var elCell = document.querySelector('.default')
+    var elH1 = document.querySelector('.title')
+    var elRestart = document.querySelector('.restart')
+    initGame()
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[i].length; j++) {
+            gBoard[i][j].isShown = false
+        }
+    }
+    elH1.innerText = 'Mine Sweeper'
+    elRestart.style.display = 'none'
+}
 
+function printNumNegs(board,position,elCell) {
+
+    var currcell = board[position.i][position.j]
+
+    //update model
+    currcell.isShown = true
+
+    //update DOM
+
+    //change nmbers color
+    if (currcell.minesAroundCount === 1) elCell.style.color = 'blue'
+    else if (currcell.minesAroundCount === 2) elCell.style.color = 'rgb(41, 160, 4)'
+    else if (currcell.minesAroundCount === 3) elCell.style.color = 'red'
+    else if (currcell.minesAroundCount === 4) elCell.style.color = 'purple'
+    else if (currcell.minesAroundCount === 5) elCell.style.color = 'hotpink'
+    else if (currcell.minesAroundCount === 6) elCell.style.color = 'hotpink'
+    elCell.innerText = currcell.minesAroundCount
 }

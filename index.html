@@ -8,23 +8,37 @@
     <link rel="stylesheet" href="css/main.css">
 </head>
 
-<body onload="initGame()">
+<body onload="initGame()" oncontextmenu="return false">
 
     <h1 class="title">Mine Sweeper</h1>
+
+    <button onclick="restart()" class="restart">restart</button>
+
     <button onclick="easy()">Easy</button>
     <button onclick="medium()">Medium</button>
     <button onclick="hard()">Hard</button>
-<table border="0" cellpadding="10">
+    <table border="0" cellpadding="10">
 
-<tbody class="board">
+        <tbody class="board">
 
-</tbody>
+        </tbody>
 
-</table>
+    </table>
+
+    <div hidden class="read">
+        <h5>Click - choose cell</h5>
+        <h5>Click+shift - mark cell</h5>
+
+        <h6>The goal is to mark all the mines.</br>
+            If you clicked on mine the game over.</br>
+            After marking all the mines, the empty cells should be marked.</br>
+            </br> Good luck!
+        </h6>
+    </div>
 
 
-<script src="js/util.js"></script>
-<script src="js/main.js"></script>
+    <script src="js/util.js"></script>
+    <script src="js/main.js"></script>
 </body>
 
 </html>
