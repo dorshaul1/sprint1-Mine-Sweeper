@@ -1,12 +1,16 @@
 'use strict'
 
+const FLAG = '🚩'
+const BOMB = '💣'
 var gBoard
 
 var gGame = {
     isOn: true,
     shownCount: 0,
     markedCount: 0,
-    secsPassed: 0
+    secsPassed: 0,
+    gStartTime: 0,
+    gInterval:0
 }
 
 function buildBoard(count, mineCount) {
@@ -119,11 +123,18 @@ function hard() {
 }
 
 function cellClicked(elCell, ev) {
+    
+    if (gGame.gInterval === 0){
+
+        gGame.gStartTime = Date.now()
+        gGame.gInterval = setInterval(timer , 100);
+    }
+
     if (!gGame.isOn) return
 
     var posI = elCell.dataset.i
     var posJ = elCell.dataset.j
-
+    
     var pos = {
         i: +posI,
         j: +posJ
@@ -133,7 +144,8 @@ function cellClicked(elCell, ev) {
     if (currCell.isShown) return
     currCell.isShown = true
 
-    if (currCell.isMine && !currCell.isMarked) {
+    if (currCell.isMine) {
+        if (currCell.isMarked) return
         checkGameOver(elCell, pos)
         return
     }
@@ -169,6 +181,7 @@ function expandShown(position, board) {
 }
 
 function checkGameOver() {
+    clearInterval(gGame.gInterval)
     var elMines = document.querySelectorAll('.mineDefault')
     var elH1 = document.querySelector('.title')
     var elRestart = document.querySelector('.restart')
@@ -177,7 +190,7 @@ function checkGameOver() {
 
         elMines[i].classList.add('mine')
         elMines[i].classList.remove('shown')
-        elMines[i].innerText = 'X'
+        elMines[i].innerText = BOMB
     }
     gGame.isOn = false
     elH1.innerText = 'Game Over'
@@ -185,8 +198,9 @@ function checkGameOver() {
 }
 
 function cellMarked(elCell, pos) {
-    gBoard[pos.i][pos.j].isMarked = true
-    elCell.innerText = ''
+    // gBoard[pos.i][pos.j].isMarked = true
+    gBoard[pos.i][pos.j].isMarked =  !gBoard[pos.i][pos.j].isMarked 
+    elCell.innerText = FLAG
     elCell.classList.toggle('marked')
     elCell.classList.remove('mine')
 }
@@ -215,4 +229,10 @@ function printNumNegs(board, position, elCell) {
     else if (currcell.minesAroundCount === 5) elCell.style.color = 'hotpink'
     else if (currcell.minesAroundCount === 6) elCell.style.color = 'orange'
     elCell.innerText = currcell.minesAroundCount
+}
+
+function timer(){
+    var elTimer = document.querySelector('.timer')
+
+    elTimer.innerText = parseInt((Date.now()-(gGame.gStartTime))/100)/10
 }
