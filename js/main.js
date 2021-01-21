@@ -10,8 +10,13 @@ var gGame = {
     markedCount: 0,
     secsPassed: 0,
     gStartTime: 0,
-    gInterval:0
+    gInterval: 0
 }
+
+var gLevel = {
+    SIZE: 8,
+    MINES: 12
+};
 
 function buildBoard(count, mineCount) {
     var board = []
@@ -48,7 +53,7 @@ function renderBoard(board) {
             var cell = board[i][j]
             var mineDefault = (cell.isMine) ? 'class = "mineDefault"' : ''
             // var shown = (cell.isShown) ? `class = "shown"` : ''
-            strHtml += `<td data-i="${i}" data-j="${j}" 
+            strHtml += `<td oncontextmenu="cellMarked2(this)" data-i="${i}" data-j="${j}" 
             onclick="cellClicked(this,event)" ${mineDefault} class = "default cell${i}-${j}"></td>`
         }
         strHtml += '</tr>'
@@ -64,7 +69,7 @@ function renderCell(location, value) {
 }
 
 function initGame() {
-    gBoard = buildBoard(8, 12)
+    gBoard = buildBoard(gLevel.SIZE, gLevel.MINES)
     renderBoard(gBoard)
     gGame.isOn = true
 }
@@ -108,33 +113,36 @@ function findNegs(board, position) {
 }
 
 function easy() {
-    gBoard = buildBoard(4, 2)
-    renderBoard(gBoard)
+    gLevel.SIZE = 4
+    gLevel.MINES = 2
+    initGame()
 }
 
 function medium() {
-    gBoard = buildBoard(8, 12)
-    renderBoard(gBoard)
+    gLevel.SIZE = 8
+    gLevel.MINES = 12
+    initGame()
 }
 
 function hard() {
-    gBoard = buildBoard(12, 30)
-    renderBoard(gBoard)
+    gLevel.SIZE = 12
+    gLevel.MINES = 30
+    initGame()
 }
 
-function cellClicked(elCell, ev) {
-    
-    if (gGame.gInterval === 0){
+function cellClicked(elCell) {
+
+    if (gGame.gInterval === 0) {
 
         gGame.gStartTime = Date.now()
-        gGame.gInterval = setInterval(timer , 100);
+        gGame.gInterval = setInterval(timer, 100);
     }
 
     if (!gGame.isOn) return
 
     var posI = elCell.dataset.i
     var posJ = elCell.dataset.j
-    
+
     var pos = {
         i: +posI,
         j: +posJ
@@ -152,12 +160,11 @@ function cellClicked(elCell, ev) {
 
     if (currCell.minesAroundCount === 0) {
         expandShown(pos, gBoard)
-    
+
     } else {
         printNumNegs(gBoard, pos, elCell)
     }
 
-    if (ev.shiftKey) cellMarked(elCell, pos)
 }
 
 function expandShown(position, board) {
@@ -172,7 +179,7 @@ function expandShown(position, board) {
             }
 
             var elCell = document.querySelector(`.cell${newPos.i}-${newPos.j}`);
-            
+
             board[i][j].isShown = true
             if (elCell.minesAroundCount === 0) expandShown(position, board)
             printNumNegs(board, newPos, elCell)
@@ -199,10 +206,27 @@ function checkGameOver() {
 
 function cellMarked(elCell, pos) {
     // gBoard[pos.i][pos.j].isMarked = true
-    gBoard[pos.i][pos.j].isMarked =  !gBoard[pos.i][pos.j].isMarked 
+    gBoard[pos.i][pos.j].isMarked = !gBoard[pos.i][pos.j].isMarked
     elCell.innerText = FLAG
     elCell.classList.toggle('marked')
     elCell.classList.remove('mine')
+}
+
+function cellMarked2(elCell) {
+    // Called on right click to mark a cell (suspected to be a mine)
+    if (gGame.gInterval === 0) {
+
+        gGame.gStartTime = Date.now()
+        gGame.gInterval = setInterval(timer, 100);
+    }
+    elCell.classList.toggle('marked')
+    if (elCell.innerHTML = FLAG) elCell.innerHTML = ''
+    elCell.innerHTML = FLAG
+    gGame.markedCount++
+    if (gGame.markedCount === gLevel.MINES) {
+        win()
+    }
+
 }
 
 function restart() {
@@ -231,8 +255,12 @@ function printNumNegs(board, position, elCell) {
     elCell.innerText = currcell.minesAroundCount
 }
 
-function timer(){
+function timer() {
     var elTimer = document.querySelector('.timer')
 
-    elTimer.innerText = parseInt((Date.now()-(gGame.gStartTime))/100)/10
+    elTimer.innerText = parseInt((Date.now() - (gGame.gStartTime)) / 100) / 10
+}
+
+function win() {
+
 }
