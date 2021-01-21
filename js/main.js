@@ -186,10 +186,10 @@ function expandShown(position, board) {
             var elCell = document.querySelector(`.cell${newPos.i}-${newPos.j}`);
 
             board[i][j].isShown = true
-            if (elCell.minesAroundCount === 0) expandShown(position, board)
             printNumNegs(board, newPos, elCell)
         }
     }
+    if (elCell.minesAroundCount === 0) expandShown(position, board)
 }
 
 function checkGameOver() {
