@@ -38,6 +38,7 @@ table {
     border-spacing: 4px 4px;
     padding: 0 2px 2px 0;
     border: 4px solid white;
+    /* color: red; */
 }
 
 .board td:hover {
