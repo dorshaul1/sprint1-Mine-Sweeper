@@ -53,7 +53,7 @@ function renderBoard(board) {
             var cell = board[i][j]
             var mineDefault = (cell.isMine) ? 'class = "mineDefault"' : ''
             // var shown = (cell.isShown) ? `class = "shown"` : ''
-            strHtml += `<td oncontextmenu="cellMarked2(this)" data-i="${i}" data-j="${j}" 
+            strHtml += `<td oncontextmenu="cellMarked(this)" data-i="${i}" data-j="${j}" 
             onclick="cellClicked(this,event)" ${mineDefault} class = "default cell${i}-${j}"></td>`
         }
         strHtml += '</tr>'
@@ -72,6 +72,8 @@ function initGame() {
     gBoard = buildBoard(gLevel.SIZE, gLevel.MINES)
     renderBoard(gBoard)
     gGame.isOn = true
+    gGame.gStartTime = 0
+
 }
 
 function setMinesNegsCount(board, position) {
@@ -204,24 +206,16 @@ function checkGameOver() {
     elRestart.style.display = 'block'
 }
 
-function cellMarked(elCell, pos) {
-    // gBoard[pos.i][pos.j].isMarked = true
-    gBoard[pos.i][pos.j].isMarked = !gBoard[pos.i][pos.j].isMarked
-    elCell.innerText = FLAG
-    elCell.classList.toggle('marked')
-    elCell.classList.remove('mine')
-}
-
-function cellMarked2(elCell) {
-    // Called on right click to mark a cell (suspected to be a mine)
+function cellMarked(elCell) {
     if (gGame.gInterval === 0) {
 
         gGame.gStartTime = Date.now()
         gGame.gInterval = setInterval(timer, 100);
     }
     elCell.classList.toggle('marked')
-    if (elCell.innerHTML = FLAG) elCell.innerHTML = ''
-    elCell.innerHTML = FLAG
+    if (elCell.innerHTML === FLAG)
+        elCell.innerHTML = ''
+    else  elCell.innerHTML = FLAG
     gGame.markedCount++
     if (gGame.markedCount === gLevel.MINES) {
         win()
@@ -232,7 +226,6 @@ function cellMarked2(elCell) {
 function restart() {
     var elH1 = document.querySelector('.title')
     var elRestart = document.querySelector('.restart')
-    initGame()
     for (var i = 0; i < gBoard.length; i++) {
         for (var j = 0; j < gBoard[i].length; j++) {
             gBoard[i][j].isShown = false
@@ -240,6 +233,7 @@ function restart() {
     }
     elH1.innerText = 'Mine Sweeper'
     elRestart.style.display = 'none'
+    initGame()
 }
 
 function printNumNegs(board, position, elCell) {
