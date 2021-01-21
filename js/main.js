@@ -60,7 +60,7 @@ function renderCell(location, value) {
 }
 
 function initGame() {
-    gBoard = buildBoard(4, 2)
+    gBoard = buildBoard(8, 12)
     renderBoard(gBoard)
     gGame.isOn = true
 }
@@ -133,7 +133,7 @@ function cellClicked(elCell, ev) {
     if (currCell.isShown) return
     currCell.isShown = true
 
-    if (currCell.isMine) {
+    if (currCell.isMine && !currCell.isMarked) {
         checkGameOver(elCell, pos)
         return
     }
@@ -162,6 +162,7 @@ function expandShown(position, board) {
             var elCell = document.querySelector(`.cell${newPos.i}-${newPos.j}`);
             
             board[i][j].isShown = true
+            if (elCell.minesAroundCount === 0) expandShown(position, board)
             printNumNegs(board, newPos, elCell)
         }
     }
@@ -184,10 +185,10 @@ function checkGameOver() {
 }
 
 function cellMarked(elCell, pos) {
+    gBoard[pos.i][pos.j].isMarked = true
     elCell.innerText = ''
     elCell.classList.toggle('marked')
     elCell.classList.remove('mine')
-    gBoard[pos.i][pos.j].isMarked = true
 }
 
 function restart() {
