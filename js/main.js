@@ -2,11 +2,6 @@
 
 var gBoard = buildBoard(8, 12)
 
-var gLevel = {
-    SIZE: 4,
-    MINES: 2
-}
-
 var gGame = {
     isOn: true,
     shownCount: 0,
@@ -30,6 +25,14 @@ function buildBoard(count, mineCount) {
     for (var i = 0; i < mineCount; i++) {
         board[getRandomInt(0, count)][getRandomInt(0, count)].isMine = true
     }
+
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board.length; j++)
+            setMinesNegsCount(board, {
+                i: i,
+                j: j
+            })
+    }
     return board
 }
 
@@ -42,7 +45,7 @@ function renderBoard(board) {
             var mineDefault = (cell.isMine) ? 'class = "mineDefault"' : null
             var shown = (cell.isShown) ? `class = "shown"` : null
             strHtml += `<td data-i="${i}" data-j="${j}" 
-            onclick="cellClicked(this,event)"${mineDefault}${shown} class = "default"></td>`
+            onclick="cellClicked(this,event)" ${shown} ${mineDefault} class = "default"></td>`
         }
         strHtml += '</tr>'
     }
@@ -50,14 +53,12 @@ function renderBoard(board) {
     elBoard.innerHTML = strHtml;
 }
 
-
 function initGame() {
     renderBoard(gBoard)
     gGame.isOn = true
 }
 
 function setMinesNegsCount(board, position) {
-    var neighbors = []
     var mineNeighbors = []
     var count = 0
     var currCell = board[position.i][position.j]
@@ -71,8 +72,6 @@ function setMinesNegsCount(board, position) {
                 i: i,
                 j: j
             }
-            neighbors.push(board[newPos.i][newPos.j])
-
             if (board[newPos.i][newPos.j].isMine) {
                 count++
                 mineNeighbors.push(board[newPos.i][newPos.j])
@@ -80,6 +79,23 @@ function setMinesNegsCount(board, position) {
         }
     }
     currCell.minesAroundCount = count
+}
+
+function findNegs(board, position) {
+    var neighbors = []
+    for (var i = position.i - 1; i <= position.i + 1; i++) {
+        if (i < 0 || i >= board.length) continue;
+        for (var j = position.j - 1; j <= position.j + 1; j++) {
+            if (j < 0 || j >= board[i].length) continue;
+            if (i === position.i && j === position.j) continue;
+
+            var newPos = {
+                i: i,
+                j: j
+            }
+            neighbors.push(board[newPos.i][newPos.j])
+        }
+    }
     return neighbors
 }
 
@@ -111,47 +127,78 @@ function cellClicked(elCell, ev) {
         j: +posJ
     }
     var currCell = gBoard[pos.i][pos.j]
+    // if (elCell.isShown) ? `class = shown ${mineDefault}` : null
+
     currCell.isShown = true
 
     // if (currCell.isShown){
     //     elCell.classList.add('shown')
     // }
 
-    if (currCell.isMine) checkGameOver(elCell, pos)
+    // if (elCell.isMine) checkGameOver(elCell)
+    if (currCell.isMine) {
+        checkGameOver(elCell, pos)
+        return
+    }
+    // console.log('gBoard[pos.i][pos.j]:', gBoard[pos.i][pos.j])
 
-    setMinesNegsCount(gBoard, pos)
-    expandShown(elCell, pos, gBoard)
+    // setMinesNegsCount(gBoard, pos)
+    if (!currCell.minesAroundCount) {
+        // console.log('currCell.minesAroundCount:', currCell.minesAroundCount)
+        printNumNegs(gBoard, pos, elCell)
+        expandShown(elCell, pos, gBoard)
+        // currCell.isShown = true
+
+    } else {
+        printNumNegs(gBoard, pos, elCell)
+    }
     // cellMarked(ev)
+    renderBoard(gBoard)
     if (ev.shiftKey) cellMarked(elCell, pos)
 }
 
 function expandShown(elCell, position, board) {
     var currcell = board[position.i][position.j]
-    var neighbors = setMinesNegsCount(board, position)
+    // console.log('currcell:', currcell)
+    var neighbors = findNegs(board, position)
     console.log('neighbors:', neighbors)
-    currcell.isShown = true
-    elCell.classList.add('shown')
-
-    currcell.isShown = true
+    var neighborsMine = currcell.minesAroundCount
+    console.log('neighborsMine:', neighborsMine)
+    console.log('neighbors:', neighbors)
+    // currcell.isShown = true 
     if (currcell.isMine) checkGameOver()
+    printNumNegs(board, position, elCell)
 
+    for (var i = 0; i < neighbors.length; i++) {
+        if (neighbors[i].minesAroundCount) {
+            // console.log('neighbors[i]:', neighbors[i])
+            neighbors[i].isShown = true
+            printNumNegs(board, position, elCell)
+            renderBoard(gBoard)
+
+            // elCell.classList.add('shown')
+            // renderBoard(gBoard)
+        }
+        // if (neighbors[i].minesAroundCount) {
+        //     printNumNegs(board, position, elCell)
+        //     renderBoard(gBoard)
+        // } 
+        else {
+            neighbors[i].isShown = true
+
+        }
+    }
+    renderBoard(gBoard)
+    // if ()
     // else if (elCell) {
     //     for (var i = 0; i < neighbors.length; i++) {
     //         neighbors[i].isShown = true
-            
-    //         // elCell.dataset.i.classList.add('shown')
-    //         // renderBoard(gBoard)
+    // elCell.dataset.i.classList.add('shown')
+    // renderBoard(gBoard)
     //     }
 
     // } 
-    else if (!currcell.minesAroundCount) {
-        for (var i = 0; i < neighbors.length; i++) {
-            neighbors[i].isShown = true
-            renderBoard(gBoard)
-        }
-    } else {
-        printNumNegs(board,position,elCell)
-    }
+    // else printNegs(board, position, elCell)
 }
 
 function checkGameOver() {
@@ -161,7 +208,7 @@ function checkGameOver() {
     var elRestart = document.querySelector('.restart')
     // console.log('elMines:', elMines)
 
-    for (let i = 0; i < elMines.length; i++) {
+    for (var i = 0; i < elMines.length; i++) {
 
         elMines[i].classList.add('mine')
         elMines[i].classList.remove('shown')
@@ -193,21 +240,29 @@ function restart() {
     elRestart.style.display = 'none'
 }
 
-function printNumNegs(board,position,elCell) {
+// function printNegs(board, position, elCell) {
+//     // var neighbors = setMinesNegsCount(board, position)
+//     for (var i = 0; i < neighbors.length; i++) {
+//         if (neighbors[i].minesAroundCount) printNumNegs(board, position, elCell)
+//         else neighbors[i].isShown = true
+//         renderBoard(gBoard)
+//     }
+// }
+
+function printNumNegs(board, position, elCell) {
 
     var currcell = board[position.i][position.j]
+    // elCell.shown.add('shown')
 
-    //update model
-    currcell.isShown = true
-
-    //update DOM
+    // currcell.isShown = true
 
     //change nmbers color
+    // if (currcell.minesAroundCount === 0) elCell.style.color = 'rgb(230, 228, 228'
     if (currcell.minesAroundCount === 1) elCell.style.color = 'blue'
     else if (currcell.minesAroundCount === 2) elCell.style.color = 'rgb(41, 160, 4)'
     else if (currcell.minesAroundCount === 3) elCell.style.color = 'red'
     else if (currcell.minesAroundCount === 4) elCell.style.color = 'purple'
     else if (currcell.minesAroundCount === 5) elCell.style.color = 'hotpink'
-    else if (currcell.minesAroundCount === 6) elCell.style.color = 'hotpink'
+    else if (currcell.minesAroundCount === 6) elCell.style.color = 'orange'
     elCell.innerText = currcell.minesAroundCount
 }
