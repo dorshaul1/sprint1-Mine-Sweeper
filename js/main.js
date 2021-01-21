@@ -149,7 +149,10 @@ function cellClicked(elCell) {
         i: +posI,
         j: +posJ
     }
+
     var currCell = gBoard[pos.i][pos.j]
+
+    elCell.classList.add('shown')
 
     if (currCell.isShown) return
     currCell.isShown = true
@@ -238,6 +241,8 @@ function restart() {
 
 function printNumNegs(board, position, elCell) {
     var currcell = board[position.i][position.j]
+    elCell.classList.add('shown')
+
 
     if (currcell.minesAroundCount === 0) elCell.style.color = 'transparent'
     else if (currcell.minesAroundCount === 1) elCell.style.color = 'blue'
@@ -261,4 +266,5 @@ function win() {
     elH1.innerText = 'You Win'
     elRestart.style.display = 'block'
     clearInterval (gGame.gInterval)
+    gGame.isOn = false
 }
