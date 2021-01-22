@@ -266,19 +266,14 @@ function cellMarked(elCell) {
 function restart() {
     var elH1 = document.querySelector('.title')
     var elRestart = document.querySelector('.restart')
-    for (var i = 0; i < gBoard.length; i++) {
-        for (var j = 0; j < gBoard[i].length; j++) {
-            gBoard[i][j].isShown = false
-        }
-    }
+    
     elH1.innerText = 'Mine Sweeper'
     elRestart.style.display = 'none'
-    initGame()
     gGame.gStartTime = 0
-
-    // elTimer.innerText = '0.0'
+    
     gGame.gStartTime = Date.now()
     gGame.gInterval = setInterval(timer, 100);
+    initGame()
 
 }
 
@@ -308,6 +303,6 @@ function win() {
     var elRestart = document.querySelector('.restart')
     elH1.innerText = 'You Win'
     elRestart.style.display = 'block'
-    clearInterval(gGame.gInterval)
     gGame.isOn = false
+    clearInterval(gGame.gInterval)
 }
