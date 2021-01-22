@@ -119,31 +119,31 @@ function findNegs(board, position) {
 function easy() {
     gLevel.SIZE = 4
     gLevel.MINES = 2
-    initGame()
     gGame.gStartTime = Date.now()
     gGame.gInterval = setInterval(timer, 100);
     if (!gGame.isOn)
         clearInterval(gInterval)
+    initGame()
 }
 
 function medium() {
     gLevel.SIZE = 8
     gLevel.MINES = 12
-    initGame()
     gGame.gStartTime = Date.now()
     gGame.gInterval = setInterval(timer, 100);
     if (!gGame.isOn)
         clearInterval(gInterval)
+    initGame()
 }
 
 function hard() {
     gLevel.SIZE = 12
     gLevel.MINES = 30
-    initGame()
     gGame.gStartTime = Date.now()
     gGame.gInterval = setInterval(timer, 100);
     if (!gGame.isOn)
         clearInterval(gInterval)
+    initGame()
 }
 
 function cellClicked(elCell) {
@@ -266,11 +266,11 @@ function cellMarked(elCell) {
 function restart() {
     var elH1 = document.querySelector('.title')
     var elRestart = document.querySelector('.restart')
-    
+
     elH1.innerText = 'Mine Sweeper'
     elRestart.style.display = 'none'
     gGame.gStartTime = 0
-    
+
     gGame.gStartTime = Date.now()
     gGame.gInterval = setInterval(timer, 100);
     initGame()
@@ -289,6 +289,8 @@ function printNumNegs(board, position, elCell) {
     else if (currcell.minesAroundCount === 4) elCell.style.color = 'purple'
     else if (currcell.minesAroundCount === 5) elCell.style.color = 'hotpink'
     else if (currcell.minesAroundCount === 6) elCell.style.color = 'orange'
+    else if (currcell.minesAroundCount === 7) elCell.style.color = 'rgb(7, 223, 173)'
+    else if (currcell.minesAroundCount === 8) elCell.style.color = 'rgb(208, 201, 24)'
     elCell.innerText = currcell.minesAroundCount
 }
 
