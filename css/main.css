@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Ubuntu:wght@300&display=swap');
-
+*{
+    Box-sizing: border-box
+    }
+    
 body {
     font-family: 'Ubuntu', sans-serif;
     text-align: center;
@@ -15,8 +18,8 @@ body {
 }
 
 table {
-    width: 680px;
-    height: 680px;
+    width: 550px;
+    height: 550px;
     margin: auto;
     background: rgb(243, 243, 243);
     border-radius: 7px;
@@ -31,9 +34,10 @@ table {
     text-align: center;
     transition: 0.5s;
     border-radius: 7px;
-    font-size: 25px;
+    font-size: 18px;
     border-spacing: 4px 4px;
-    padding: 0 2px 2px 0;
+    /* padding: 1px 1px 1px 1px; */
+    padding: 0px;
     border: 4px solid white;
 }
 
