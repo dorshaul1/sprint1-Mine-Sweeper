@@ -32,7 +32,11 @@ function buildBoard(count, mineCount) {
         }
     }
     for (var i = 0; i < mineCount; i++) {
-        board[getRandomInt(0, count)][getRandomInt(0, count)].isMine = true
+        var randNum = board[getRandomInt(0, count)][getRandomInt(0, count)]
+        while (randNum.isMine) {
+            randNum = board[getRandomInt(0, count)][getRandomInt(0, count)]
+        }
+        randNum.isMine = true
     }
 
     for (var i = 0; i < board.length; i++) {
@@ -119,7 +123,7 @@ function easy() {
     gGame.gStartTime = Date.now()
     gGame.gInterval = setInterval(timer, 100);
     if (!gGame.isOn)
-    clearInterval(gInterval)
+        clearInterval(gInterval)
 }
 
 function medium() {
@@ -129,7 +133,7 @@ function medium() {
     gGame.gStartTime = Date.now()
     gGame.gInterval = setInterval(timer, 100);
     if (!gGame.isOn)
-    clearInterval(gInterval)
+        clearInterval(gInterval)
 }
 
 function hard() {
@@ -139,7 +143,7 @@ function hard() {
     gGame.gStartTime = Date.now()
     gGame.gInterval = setInterval(timer, 100);
     if (!gGame.isOn)
-    clearInterval(gInterval)
+        clearInterval(gInterval)
 }
 
 function cellClicked(elCell) {
@@ -184,30 +188,32 @@ function cellClicked(elCell) {
 
 function expandShown(position, board) {
     var neighbors = []
-    // if (board[position.i][position.j].minesAroundCount>0) return
     for (var i = position.i - 1; i <= position.i + 1; i++) {
         if (!(i < 0 || i >= board.length)) {
 
             for (var j = position.j - 1; j <= position.j + 1; j++) {
                 if (!(j < 0 || j >= board[i].length)) {
+                    if (!(board[i][j].isShown)) {
 
-                    var newPos = {
-                        i: i,
-                        j: j
+
+                        var newPos = {
+                            i: i,
+                            j: j
+                        }
+
+                        var elCell = document.querySelector(`.cell${newPos.i}-${newPos.j}`)
+
+                        board[i][j].isShown = true
+                        printNumNegs(board, newPos, elCell)
+                        neighbors.push(newPos)
                     }
-
-                    var elCell = document.querySelector(`.cell${newPos.i}-${newPos.j}`)
-
-                    board[i][j].isShown = true
-                    printNumNegs(board, newPos, elCell)
-                    neighbors.push(newPos)
                 }
             }
         }
     }
-    // for (var i = 0; i < neighbors.length; i++) {
-    //     if (board[neighbors[i].i][neighbors[i].j].minesAroundCount === 0) expandShown(neighbors[i], board)
-    // }
+    for (var i = 0; i < neighbors.length; i++) {
+        if (board[neighbors[i].i][neighbors[i].j].minesAroundCount === 0) expandShown(neighbors[i], board)
+    }
 }
 
 function checkGameOver() {
@@ -227,18 +233,31 @@ function checkGameOver() {
     elRestart.style.display = 'block'
 }
 
+function checkWin(board) {
+    for (var i = 0; i < board.length; i++) {
+        for (var j = 0; j < board.length; j++) {
+            if (gBoard[i][j].isMine && !(gBoard[i][j].isMarked)) return false
+        }
+    }
+    return true
+}
+
 function cellMarked(elCell) {
     if (gGame.gInterval === 0) {
-
         gGame.gStartTime = Date.now()
         gGame.gInterval = setInterval(timer, 100);
     }
+    var posI = elCell.dataset.i
+    var posJ = elCell.dataset.j
+
+    gBoard[posI][posJ].isMarked = true
+
     elCell.classList.toggle('marked')
     if (elCell.innerHTML === FLAG)
         elCell.innerHTML = ''
     else elCell.innerHTML = FLAG
     gGame.markedCount++
-    if (gGame.markedCount === gLevel.MINES) {
+    if (checkWin(gBoard)) {
         win()
     }
 
@@ -257,9 +276,9 @@ function restart() {
     initGame()
     gGame.gStartTime = 0
 
-        // elTimer.innerText = '0.0'
-        gGame.gStartTime = Date.now()
-        gGame.gInterval = setInterval(timer, 100);
+    // elTimer.innerText = '0.0'
+    gGame.gStartTime = Date.now()
+    gGame.gInterval = setInterval(timer, 100);
 
 }
 
