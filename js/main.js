@@ -72,8 +72,6 @@ function initGame() {
     gBoard = buildBoard(gLevel.SIZE, gLevel.MINES)
     renderBoard(gBoard)
     gGame.isOn = true
-    gGame.gStartTime = 0
-
 }
 
 function setMinesNegsCount(board, position) {
@@ -118,18 +116,30 @@ function easy() {
     gLevel.SIZE = 4
     gLevel.MINES = 2
     initGame()
+    gGame.gStartTime = Date.now()
+    gGame.gInterval = setInterval(timer, 100);
+    if (!gGame.isOn)
+    clearInterval(gInterval)
 }
 
 function medium() {
     gLevel.SIZE = 8
     gLevel.MINES = 12
     initGame()
+    gGame.gStartTime = Date.now()
+    gGame.gInterval = setInterval(timer, 100);
+    if (!gGame.isOn)
+    clearInterval(gInterval)
 }
 
 function hard() {
     gLevel.SIZE = 12
     gLevel.MINES = 30
     initGame()
+    gGame.gStartTime = Date.now()
+    gGame.gInterval = setInterval(timer, 100);
+    if (!gGame.isOn)
+    clearInterval(gInterval)
 }
 
 function cellClicked(elCell) {
@@ -155,7 +165,7 @@ function cellClicked(elCell) {
     elCell.classList.add('shown')
 
     if (currCell.isShown) return
-    currCell.isShown = true
+    // currCell.isShown = true
 
     if (currCell.isMine) {
         if (currCell.isMarked) return
@@ -173,23 +183,31 @@ function cellClicked(elCell) {
 }
 
 function expandShown(position, board) {
+    var neighbors = []
+    // if (board[position.i][position.j].minesAroundCount>0) return
     for (var i = position.i - 1; i <= position.i + 1; i++) {
-        if (i < 0 || i >= board.length) continue;
-        for (var j = position.j - 1; j <= position.j + 1; j++) {
-            if (j < 0 || j >= board[i].length) continue;
+        if (!(i < 0 || i >= board.length)) {
 
-            var newPos = {
-                i: i,
-                j: j
+            for (var j = position.j - 1; j <= position.j + 1; j++) {
+                if (!(j < 0 || j >= board[i].length)) {
+
+                    var newPos = {
+                        i: i,
+                        j: j
+                    }
+
+                    var elCell = document.querySelector(`.cell${newPos.i}-${newPos.j}`)
+
+                    board[i][j].isShown = true
+                    printNumNegs(board, newPos, elCell)
+                    neighbors.push(newPos)
+                }
             }
-
-            var elCell = document.querySelector(`.cell${newPos.i}-${newPos.j}`);
-
-            board[i][j].isShown = true
-            printNumNegs(board, newPos, elCell)
         }
     }
-    if (elCell.minesAroundCount === 0) expandShown(position, board)
+    // for (var i = 0; i < neighbors.length; i++) {
+    //     if (board[neighbors[i].i][neighbors[i].j].minesAroundCount === 0) expandShown(neighbors[i], board)
+    // }
 }
 
 function checkGameOver() {
@@ -218,7 +236,7 @@ function cellMarked(elCell) {
     elCell.classList.toggle('marked')
     if (elCell.innerHTML === FLAG)
         elCell.innerHTML = ''
-    else  elCell.innerHTML = FLAG
+    else elCell.innerHTML = FLAG
     gGame.markedCount++
     if (gGame.markedCount === gLevel.MINES) {
         win()
@@ -237,6 +255,12 @@ function restart() {
     elH1.innerText = 'Mine Sweeper'
     elRestart.style.display = 'none'
     initGame()
+    gGame.gStartTime = 0
+
+        // elTimer.innerText = '0.0'
+        gGame.gStartTime = Date.now()
+        gGame.gInterval = setInterval(timer, 100);
+
 }
 
 function printNumNegs(board, position, elCell) {
@@ -265,6 +289,6 @@ function win() {
     var elRestart = document.querySelector('.restart')
     elH1.innerText = 'You Win'
     elRestart.style.display = 'block'
-    clearInterval (gGame.gInterval)
+    clearInterval(gGame.gInterval)
     gGame.isOn = false
 }
